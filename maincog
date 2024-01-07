@@ -1,0 +1,69 @@
+import discord
+import os
+from os import listdir 
+from discord.ext import commands
+from Mrbot import Token 
+from datetime import datetime
+
+Client = commands.Bot(command_prefix="=", intents = discord.Intents.all())
+
+@Client.event
+async def on_ready():
+   print(f"Ready!\nUsername: {Client.user}")
+
+@Client.command()
+async def clear(ctx, amount=15):
+   await ctx.channel.purge(limit=amount)
+
+
+@Client.event
+async def on_member_join(member):
+ print(f"{member} has joined a server.")
+
+@Client.event 
+async def on_member_remove(member): 
+   print(f"{member}has left a server.")
+
+
+@Client.command() 
+async def sendembed(ctx):
+   embed = discord.Embed(
+     title="Test Embed",
+     color=discord.Color.dark_gold(),
+     description="Hello , I am testing Embed"
+   )
+   embed.add_field(name="field 1", value="This is the 1st inline field", inline=True)
+   embed.add_field(name="field 2", value="This is the 2nd inline field", inline=True)
+   embed.add_field(name="Field 3", value="This is the 3rd inline field", inline=False)
+   embed.set_image(url="https://picsum.photos/id/237/200/300")
+   embed.set_thumbnail(url="https://picsum.photos/id/237/200/300")
+   embed.set_author(name = "Author's name", url = "https://picsum.photos/id/237/200/300",icon_url = "https://picsum.photos/id/237/200/300") 
+   embed.set_footer(text="This is a footer")
+   embed.timestamp = datetime.now()
+   await ctx.send(embed=embed)
+
+
+@Client.command()
+async def load(ctx, extension):
+   Client.load_extension(f"cogs.{extension}")
+   await ctx.send(f"Loaded extension: {extension}.")
+
+@Client.command()
+async def unload(ctx, extension):
+   Client.unload_extension(f"cogs.{extension}")
+   await ctx.send(f"Unloaded extension: {extension}.")
+   
+
+
+current_file = __file__ 
+parent_dir = os.path.dirname(os.path.abspath(current_file))
+cogs_dir = os.path.join(parent_dir, "cogs")
+
+for filename in os.listdir(cogs_dir):
+    if filename.endswith(".py"):
+        module_name = os.path.splitext(filename)[0]
+        Client.load_extension(os.path.join("cogs", module_name))
+
+
+
+Client.run(Token)
